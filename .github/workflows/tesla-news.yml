@@ -1,0 +1,27 @@
+name: Tesla Daily News
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # 한국시간 오전 7시 (UTC 22시)
+  workflow_dispatch:       # 수동 테스트용
+
+jobs:
+  send-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install dependencies
+        run: |
+          pip install feedparser requests yfinance
+      
+      - name: Run Tesla News Script
+        env:
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: python tesla_news.py
