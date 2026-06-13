@@ -14,7 +14,7 @@ RSS_FEEDS = [
     "https://ir.tesla.com/rss/news-releases.xml",
 ]
 
-EMAIL_SENDER = "your_gmail@gmail.com"      # ← 여기에 실제 Gmail 주소
+EMAIL_SENDER = "mkswaton@gmail.com"      # ← 여기에 실제 Gmail 주소
 EMAIL_PASSWORD = ""                        # Secrets에서 처리
 EMAIL_RECEIVER = "ksg0879@naver.com"
 # =============================================
