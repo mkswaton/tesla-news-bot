@@ -2,9 +2,6 @@ import feedparser
 import requests
 from datetime import datetime
 import hashlib
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import yfinance as yf
 
 # ==================== 설정 ====================
@@ -14,9 +11,8 @@ RSS_FEEDS = [
     "https://ir.tesla.com/rss/news-releases.xml",
 ]
 
-EMAIL_SENDER = "mkswaton@gmail.com"      # ← 여기에 실제 Gmail 주소
-EMAIL_PASSWORD = ""                        # Secrets에서 처리
-EMAIL_RECEIVER = "ksg0879@naver.com"
+TELEGRAM_TOKEN = ""        # ← Secrets에서 자동 입력
+TELEGRAM_CHAT_ID = ""      # ← Secrets에서 자동 입력
 # =============================================
 
 def get_tsla_stock():
@@ -72,26 +68,25 @@ def create_report(articles, stock):
         report += f"   🔗 {art['link']}\n\n"
     return report
 
-def send_email(report):
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
-    msg['Subject'] = f"🚀 테슬라 오늘의 뉴스 & 주가 ({datetime.now().strftime('%Y-%m-%d')})"
-    msg.attach(MIMEText(report, 'plain', 'utf-8'))
-    
+def send_telegram(report):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    data = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": report,
+        "parse_mode": "Markdown"
+    }
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print("✅ 이메일 발송 성공!")
+        response = requests.post(url, json=data)
+        if response.status_code == 200:
+            print("✅ Telegram 발송 성공!")
+        else:
+            print("❌ Telegram 발송 실패:", response.text)
     except Exception as e:
-        print("❌ 이메일 발송 실패:", str(e))
+        print("❌ Telegram 발송 실패:", e)
 
 if __name__ == "__main__":
     stock = get_tsla_stock()
     news = fetch_news()
     report = create_report(news, stock)
     print(report)
-    send_email(report)
+    send_telegram(report)
